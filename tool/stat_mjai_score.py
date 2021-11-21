@@ -17,19 +17,64 @@ class PlayerResult :
     count_game  : int   = 0 
     count_reach : int   = 0
     count_furo  : int   = 0
+    count_furo_kyoku : int = 0
     count_hora  : int   = 0
     count_baojia: int   = 0 # 放銃
+    count_draw  : int   = 0
+    count_tenpai_draw : int = 0
     count_tsumo : int   = 0
     total_score : int   = 0
     total_hora_score : int  = 0
     total_baojia_score : int = 0
     count_ranks : list = None
 
+    @property
+    def rate_hora(self) :
+        return self.div(self.count_hora, self.count_kyoku)
+
+    @property
+    def rate_tsumo(self) :
+        return self.div(self.count_tsumo, self.count_hora)
+
+    @property
+    def rate_dealin(self) :
+        return self.div(self.count_baojia, self.count_kyoku)
+
+    @property
+    def rate_reach(self) :
+        return self.div(self.count_reach, self.count_kyoku)
+
+    @property
+    def rate_furo(self) :
+        return self.div(self.count_furo_kyoku, self.count_kyoku)
+    
+    @property
+    def rate_draw(self) :
+        return self.div(self.count_draw, self.count_kyoku)
+
+    @property
+    def rate_tenpai_draw(self) :
+        return self.div(self.count_tenpai_draw, self.count_draw)
+
+    @property
+    def average_win_score(self) :
+        return self.div(self.total_hora_score, self.count_hora)
+
+    @property
+    def average_baojia_score(self) :
+        return self.div(self.total_baojia_score, self.count_baojia)
+
+    @property
+    def average_rank(self) :
+        sum_rank = sum([(i+1) * count_rank for i, count_rank in enumerate(self.count_ranks)])
+        count_game = sum(self.count_ranks)
+        return self.div(sum_rank, count_game)
+
+    def div(self, a, b) :
+        return a / b if b > 0 else 0.0
+
     def __post_init__(self) :
         self.count_ranks = [0] * NUM_PLAYERS
-        
-    def calc_stat(self) :
-        pass
 
     def __add__(self, other) :
         result = PlayerResult(
@@ -37,8 +82,11 @@ class PlayerResult :
             count_game = self.count_game + other.count_game,
             count_reach = self.count_reach + other.count_reach,
             count_furo = self.count_furo + other.count_furo,
+            count_furo_kyoku = self.count_furo_kyoku + other.count_furo_kyoku,
             count_hora = self.count_hora + other.count_hora,
             count_baojia = self.count_baojia + other.count_baojia,
+            count_draw = self.count_draw + other.count_draw,
+            count_tenpai_draw = self.count_tenpai_draw + other.count_tenpai_draw,
             count_tsumo = self.count_tsumo + other.count_tsumo,
             total_score = self.total_score + other.total_score,
             total_hora_score = self.total_hora_score + other.total_hora_score,
@@ -86,13 +134,26 @@ def get_result_from_mjson(log_file) :
                 result[names[target]].total_baojia_score += delta_scores[target]
             else :
                 result[names[actor]].count_tsumo += 1
+        elif action_type == "end_kyoku" :
+            for name in names :
+                if result[name].count_furo > 0 :
+                    result[name].count_furo_kyoku += 1
+        elif action_type == "ryukyoku" :
+            tenpais = action["tenpais"]
+            for i, name in enumerate(names) :
+                result[name].count_draw += 1
+                if tenpais[i] :
+                    result[name].count_tenpai_draw += 1
+                
         elif action_type == "end_game" :
             scores = action["scores"]
 
             # Calculate ranking by Mahjong rule
             range_indices = range(len(scores))
             sorted_indices = sorted(range_indices, key = scores.__getitem__, reverse = True)
-            ranks = sorted(range_indices, key = sorted_indices.__getitem__)
+            ranks = [0] * len(sorted_indices)
+            for i, indices in enumerate(sorted_indices) :
+                ranks[indices] = i
 
             for name, rank in zip(names, ranks) :
                 result[name].count_ranks[rank] += 1
@@ -109,7 +170,7 @@ name        : {name}
 和了率      : {rate_hora}%
 自摸率      : {rate_tsumo}%
 平均得点    : {average_win_score}
-平均失点    : {average_loss_score}
+平均放銃    : {average_baojia_score}
 放銃率      : {rate_dealin}%
 立直率      : {rate_reach}%
 副露率      : {rate_furo}%
@@ -122,32 +183,19 @@ name        : {name}
     score_message = format_str.format(
         name = name,
         count_kyoku = player_result.count_kyoku,
-        rate_hora   = 0.0 * 100,
-        rate_tsumo  = 0.0 * 100,
-        average_win_score = 0,
-        average_loss_score = 0,
-        rate_dealin  = 0.0 * 100,
-        rate_reach  = 0.0 * 100,
-        rate_furo   = 0.0 * 100,
+        rate_hora   = player_result.rate_hora * 100,
+        rate_tsumo  = player_result.rate_tsumo * 100,
+        average_win_score = player_result.average_win_score,
+        average_baojia_score = player_result.average_baojia_score,
+        rate_dealin  = player_result.rate_dealin * 100,
+        rate_reach  = player_result.rate_reach * 100,
+        rate_furo   = player_result.rate_furo * 100,
         format_ranks = format_ranks,
-        average_rank = 0,
-        rate_draw   = 0.0 * 100,
-        rate_draw_tenpai = 0.0 * 100,
+        average_rank = player_result.average_rank,
+        rate_draw   = player_result.rate_draw * 100,
+        rate_draw_tenpai = player_result.rate_tenpai_draw * 100,
     )
     print(score_message)
-"""
-    count_kyoku : int   = 0
-    count_game  : int   = 0 
-    count_reach : int   = 0
-    count_furo  : int   = 0
-    count_hora  : int   = 0
-    count_baojia: int   = 0 # 放銃
-    count_tsumo : int   = 0
-    total_score : int   = 0
-    total_hora_score : int  = 0
-    total_baojia_score : int = 0
-    count_ranks : list = None
-"""
 
 def main(args) :
     log_dir = args.log_directory
@@ -163,6 +211,7 @@ def main(args) :
     
     for name, res in results.items() :
         print_player_result(name, res)
+        print(res)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "Statistics mjai records.")
