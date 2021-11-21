@@ -45,7 +45,6 @@ class PlayerResult :
             total_baojia_score = self.total_baojia_score + other.total_baojia_score,
         )
         result.count_ranks = [rank1 + rank2 for rank1, rank2 in zip(self.count_ranks, other.count_ranks)]
-        result.calc_stat()
         return result
 
 def merge_game_result(result1, result2) :
@@ -100,26 +99,42 @@ def get_result_from_mjson(log_file) :
     return result
 
 def print_player_result(name, player_result : PlayerResult) :
+    count_ranks = player_result.count_ranks
+    format_ranks = '\n'.join([ "  {}位       | {}".format(i + 1, count_rank ) for i, count_rank in enumerate(count_ranks)])
 
     format_str = """\
-name    : {name}
-局数    : {count_kyoku}局
-和了率  :
-自摸率
-平均得点
-平均失点
-放銃率
-立直率
-副露率
-順位  | 回数
-平均順位
-流局率
-流局時聴牌率
-平均最終持ち点
-起家  | 回数
-
-"""
-    print(format_str.format(name = name, count_kyoku = player_result.count_kyoku ))
+name        : {name}
+---------------------------------------
+局数        : {count_kyoku}局
+和了率      : {rate_hora}%
+自摸率      : {rate_tsumo}%
+平均得点    : {average_win_score}
+平均失点    : {average_loss_score}
+放銃率      : {rate_dealin}%
+立直率      : {rate_reach}%
+副露率      : {rate_furo}%
+  順位      | 回数 
+{format_ranks}
+平均順位    : {average_rank}
+流局率      : {rate_draw}%
+流局時聴牌率: {rate_draw_tenpai}%
+    """
+    score_message = format_str.format(
+        name = name,
+        count_kyoku = player_result.count_kyoku,
+        rate_hora   = 0.0 * 100,
+        rate_tsumo  = 0.0 * 100,
+        average_win_score = 0,
+        average_loss_score = 0,
+        rate_dealin  = 0.0 * 100,
+        rate_reach  = 0.0 * 100,
+        rate_furo   = 0.0 * 100,
+        format_ranks = format_ranks,
+        average_rank = 0,
+        rate_draw   = 0.0 * 100,
+        rate_draw_tenpai = 0.0 * 100,
+    )
+    print(score_message)
 """
     count_kyoku : int   = 0
     count_game  : int   = 0 
