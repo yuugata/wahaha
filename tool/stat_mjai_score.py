@@ -166,18 +166,18 @@ def print_player_result(name, player_result : PlayerResult) :
 name        : {name}
 ---------------------------------------
 局数        : {count_kyoku}局
-和了率      : {rate_hora}%
-自摸率      : {rate_tsumo}%
-平均得点    : {average_win_score}
-平均放銃    : {average_baojia_score}
-放銃率      : {rate_dealin}%
-立直率      : {rate_reach}%
-副露率      : {rate_furo}%
+和了率      : {rate_hora:.2f}%
+自摸率      : {rate_tsumo:.2f}%
+平均得点    : {average_win_score:.2f}
+平均放銃    : {average_baojia_score:.2f}
+放銃率      : {rate_dealin:.2f}%
+立直率      : {rate_reach:.2f}%
+副露率      : {rate_furo:.2f}%
   順位      | 回数 
 {format_ranks}
-平均順位    : {average_rank}
-流局率      : {rate_draw}%
-流局時聴牌率: {rate_draw_tenpai}%
+平均順位    : {average_rank:.2f}
+流局率      : {rate_draw:.2f}%
+流局時聴牌率: {rate_draw_tenpai:.2f}%
     """
     score_message = format_str.format(
         name = name,
