@@ -144,9 +144,8 @@ def get_result_from_mjson(log_file) :
                 result[name].count_draw += 1
                 if tenpais[i] :
                     result[name].count_tenpai_draw += 1
-                
         elif action_type == "end_game" :
-            scores = action["scores"]
+            scores = action["scores"][:NUM_PLAYERS] # TODO fix mjai bug
 
             # Calculate ranking by Mahjong rule
             range_indices = range(len(scores))
