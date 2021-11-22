@@ -171,6 +171,18 @@ def legal_action_log_all(records) :
         legal_actions.append(mjai_actions)
     return legal_actions
 
+def get_legal_action(records) :
+    legal_actions = legal_action_log_all(records)
+    return legal_actions[-1]
+
+def get_scores(records) :
+    mjaiLoader = MjaiLoader()
+    for record in records :
+        # if record["type"] in ("end_game") : # なんかエラーが出る対策。将来的にはmjlegalを修正したい.
+        #     break
+        mjaiLoader.action(record)
+    return mjaiLoader.game.scores
+
 # def proc_mjailog(input_logdir, file_name, output_npzdir):
 #     dp = Data_Processor()
 #     game_record = read_log_json(file_name)
@@ -198,22 +210,18 @@ def legal_action_log_all(records) :
 #     joblib.Parallel(n_jobs=6)(joblib.delayed(loop_func)(file_name) for file_name in file_list)
 
 def get_current_feature(current_record, legal_actions):
-    print("current_record",current_record)
     if len(current_record) == 0:
         return None
 
-    print(legal_actions)
     if legal_actions is None:
-        # cmd = "./system.exe legal_action " + json.dumps({'record': current_record}, separators=(',', ':'))
-        # legal_actions = subprocess.check_output(cmd.split()).decode('utf-8').rstrip()
-        # legal_actions = json.loads(legal_actions)
-        legal_actions = legal_action_log_all(current_record)
-        print("legal action num", len(legal_actions))
+        legal_actions = get_legal_action(current_record)
 
     features = [{"others": []} for i in range(4)]
     game_state = get_game_state_start_kyoku(json.loads(INITIAL_START_KYOKU))
     for action in current_record:
         if action["type"] == "start_kyoku":
+            if "scores" not in action :
+                action["scores"] = get_scores(current_record)
             game_state = get_game_state_start_kyoku(action)
         else:
             game_state.go_next_state(action)

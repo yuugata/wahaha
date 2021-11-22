@@ -493,6 +493,10 @@ class Game_State:
             consumed.append(hai_str_to_int(action_json["consumed"][1]))
             consumed.append(hai_str_to_int(action_json["consumed"][2]))
             self.player_state[actor].replace_pon_to_kakan(Fuuro_Elem(Fuuro_Type.FT_KAKAN, hai, consumed, 0))
+        elif action_json["type"] == "nukidora" :
+            actor = action_json["actor"]
+            self.player_state[actor].tehai[hai_str_to_int(action_json["pai"][0])] -= 1
+            # TODO 抜いた牌をfuuroに追加
 
     def to_json(self, view_pid):
         # view_pid == -1 ならば全部の手牌が見える。
@@ -606,20 +610,21 @@ def get_game_state_start_kyoku(action_json_dict):
 
     tehai_array = [[0 for j in range(38)] for i in range(4)]
 
-    for i in range(4):
+    for i in range(3):
         for hai_str in action_json_dict["tehais"][i]:
             tehai_array[i][hai_str_to_int(hai_str)] += 1
+    scores = action_json_dict["scores"] + [0]
 
     return Game_State(bakaze = kaze_str_to_int(action_json_dict["bakaze"]),
                       kyoku = action_json_dict["kyoku"],
                       honba = action_json_dict["honba"],
                       kyotaku = action_json_dict["kyotaku"],
-                      scores = action_json_dict["scores"],
+                      scores = scores,
                       oya = action_json_dict["oya"],
                       dora_marker = hai_str_to_int(action_json_dict["dora_marker"]),
                       tehai_array = tehai_array)
 
-INITIAL_START_KYOKU = '{ "type": "start_kyoku", "bakaze": "E", "kyoku": 1, "honba": 0, "kyotaku": 0, "scores": [30000, 30000, 30000, 0], "oya": 0, "dora_marker": "?", "tehais": [[], [], [], []] }'
+INITIAL_START_KYOKU = '{ "type": "start_kyoku", "bakaze": "E", "kyoku": 1, "honba": 0, "kyotaku": 0, "scores": [35000, 35000, 35000, 0], "oya": 0, "dora_marker": "?", "tehais": [[], [], [], []] }'
 
 
 #-- for ui ---#
