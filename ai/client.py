@@ -30,11 +30,17 @@ class Client :
     def update_state(self, action) :
         self.mjaiLoader.action_receive(action)
         action_type = action["type"]
+
+        # TODO: mjlegalがscoreをチェックしていないため、暫定的にclient.py側で取得する
+        if "scores" in action :
+            self.player_scores = action["scores"]
+
         if action_type == "start_game" :
             self.player_id = action["id"]
+            self.player_scores = [35000, 35000, 35000]
         elif action_type == "start_kyoku":
             if "scores" not in action :
-                action["scores"] = self.mjaiLoader.game.scores
+                action["scores"] = self.player_scores
             self.game_state = get_game_state_start_kyoku(action)
         else :
             self.game_state.go_next_state(action)
