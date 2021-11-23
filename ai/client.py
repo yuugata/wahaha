@@ -64,7 +64,12 @@ class Client :
 
     def get_dahai_action(self, legal_actions, prob_discard) :
         dahai_actions = [legal_action for legal_action in legal_actions if legal_action["type"] == "dahai"]
-        return max(dahai_actions, key = lambda action : get_hai34(hai_str_to_int(action["pai"])) )
+        
+        def action_prob(action) :
+            hai34 = get_hai34(hai_str_to_int(action["pai"]))
+            return prob_discard[hai34]
+            
+        return max(dahai_actions, key = action_prob)
 
     def forward_one(self, model, feature):
         model.eval()
