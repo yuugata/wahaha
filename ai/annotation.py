@@ -155,17 +155,7 @@ def legal_action_log_all(records) :
     mjaiLoader = MjaiLoader()
     possibleActionGenerator = PossibleActionGenerator()
     for record in records :
-        if record["type"] in ("end_game") : # なんかエラーが出る対策。将来的にはmjlegalを修正したい.
-            continue
-
         mjaiLoader.action(record)
-
-        # vvv for debug vvv
-        # print("action:", record)
-        # for i, player_state in enumerate(mjaiLoader.game.player_states) :
-        #      print(i, player_state.dump())
-        # ^^^ for debug ^^^
-        
         actions = possibleActionGenerator.possible_game_actions(mjaiLoader.game)
         mjai_actions = [action.to_mjai_json() for action in actions]
         legal_actions.append(mjai_actions)
@@ -178,36 +168,8 @@ def get_legal_action(records) :
 def get_scores(records) :
     mjaiLoader = MjaiLoader()
     for record in records :
-        # if record["type"] in ("end_game") : # なんかエラーが出る対策。将来的にはmjlegalを修正したい.
-        #     break
         mjaiLoader.action(record)
     return mjaiLoader.game.scores
-
-# def proc_mjailog(input_logdir, file_name, output_npzdir):
-#     dp = Data_Processor()
-#     game_record = read_log_json(file_name)
-#     cmd = "./system.exe legal_action_log_all " + file_name
-#     c = subprocess.check_output(cmd.split()).decode('utf-8').rstrip()
-#     legal_actions_all = json.loads(c)
-#     try:
-#         dp.process_record(game_record, legal_actions_all)
-#         dp.dump(input_logdir, file_name, output_npzdir)
-#     except AssertionError as e:
-#         print('proc_mjailog AssertionError:', e)
-
-# def proc_batch_mjailog(input_logdir, input_regex, output_npzdir, update):
-#     file_list = sorted(glob.glob(os.path.join(input_logdir, input_regex)))
-
-#     def loop_func(file_name):
-#         if not update:
-#             discard_path = get_output_pathstr(input_logdir, file_name, output_npzdir, 'discard')
-#             if pathlib.Path(discard_path).is_file():
-#                 return
-            
-#         print("process:", file_name)
-#         proc_mjailog(input_logdir, file_name, output_npzdir)
-
-#     joblib.Parallel(n_jobs=6)(joblib.delayed(loop_func)(file_name) for file_name in file_list)
 
 def get_current_feature(current_record, legal_actions):
     if len(current_record) == 0:
