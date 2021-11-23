@@ -87,14 +87,14 @@ class FuuroNet(nn.Module):
 
 """ dataset """
 
-class FileDatasets(Dataset):
-    def __init__(self, file_path):
-        npz = np.load(file_path)
-        self.data = npz['arr_0']
-        self.label = npz['arr_1']
+# class FileDatasets(Dataset):
+#     def __init__(self, file_path):
+#         npz = np.load(file_path)
+#         self.data = npz['arr_0']
+#         self.label = npz['arr_1']
 
-    def __len__(self):
-        return len(self.label)
+#     def __len__(self):
+#         return len(self.label)
 
-    def __getitem__(self, idx):
-        return self.data[idx], np.argmax(self.label[idx])
+#     def __getitem__(self, idx):
+#         return self.data[idx], np.argmax(self.label[idx])

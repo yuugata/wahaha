@@ -6,7 +6,7 @@ from mjlegal.mjai_player_loader import MjaiPlayerLoader
 # from mjlegal.possible_action import PossibleActionGenerator
 from mjlegal.mjai_possible_action import MjaiPossibleActionGenerator
 
-from ai.annotation import *
+from ai.client import *
 
 SERVER_TO_CLIENT = 0
 CLIENT_TO_SERVER = 1
@@ -40,36 +40,28 @@ def equal_mjai_action(action1, action2) :
 
 def test_mjai_load(log_filename) :
     records = load_mjai_records(log_filename)
-    for i in range(2, len(records) - 1) :
-        record = records[i]
-        print(i)
-        current_records = records[:i + 1]
-        # pdb.set_trace() # DEBUG
-        legal_action, feature =  get_current_feature(current_records, None)
-        print(feature)
+    for i in range(len(records)) :
+        pass
 
 def test_mjai_player_records(filename) :
     records = load_mjai_player_records(filename)
-    mjaiPlayerLoader = MjaiPlayerLoader()
-    mjaiPossibleActionGenerator = MjaiPossibleActionGenerator()
-    mjaiPossibleActionGenerator.name = 'Manue1'
-    possible_actions = None
-    previous_receive_action = None
+    # mjaiPlayerLoader = MjaiPlayerLoader()
+    # mjaiPossibleActionGenerator = MjaiPossibleActionGenerator()
+    # mjaiPossibleActionGenerator.name = 'Manue1'
+    # possible_actions = None
+    # previous_receive_action = None
+    
+    client = Client()
+    client.setup()
+    client.reset()
+    
     for record in records :
         direction = record['direction']
         ev = record['record']
         if direction == SERVER_TO_CLIENT :
-            previous_receive_action = ev
-            mjaiPlayerLoader.action_receive(previous_receive_action)
-            possible_actions = mjaiPossibleActionGenerator.possible_mjai_action(mjaiPlayerLoader.game, previous_receive_action)
+            client.update_state(ev)
         elif direction == CLIENT_TO_SERVER :
-            mjaiPlayerLoader.action_send(ev)
-            is_legal = any(equal_mjai_action(possible, ev) for possible in possible_actions)
-            if not is_legal :
-                print("previous receive:", previous_receive_action)
-                print("illegal_action:", ev)
-                print("possible_action:", possible_actions)
-                print("player_states:",mjaiPlayerLoader.game.player_states[mjaiPlayerLoader.game.player_id].dump())
+            client.choose_action()
         else :
             self.fail('Invalid mjai player record..')
 
