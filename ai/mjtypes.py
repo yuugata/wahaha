@@ -396,7 +396,9 @@ class Game_State:
         self.dora_marker = []
         if is_valid_hai(dora_marker):
             self.dora_marker.append(dora_marker)
-        self.player_state = [Player_State(scores[i], (i - oya + 4) % 4, tehai_array[i]) for i in range (4)]
+        tehai = tehai_array + [[0] * len(tehai_array[0])]
+        print("scores", scores)
+        self.player_state = [Player_State(scores[i], (i - oya + 4) % 4, tehai[i]) for i in range (4)]
         self.total_tsumo_num = 0
 
     def go_next_state(self, action_json):
