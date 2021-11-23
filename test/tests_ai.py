@@ -45,12 +45,7 @@ def test_mjai_load(log_filename) :
 
 def test_mjai_player_records(filename) :
     records = load_mjai_player_records(filename)
-    # mjaiPlayerLoader = MjaiPlayerLoader()
-    # mjaiPossibleActionGenerator = MjaiPossibleActionGenerator()
-    # mjaiPossibleActionGenerator.name = 'Manue1'
-    # possible_actions = None
-    # previous_receive_action = None
-    
+
     client = Client()
     client.setup()
     client.reset()
@@ -61,7 +56,13 @@ def test_mjai_player_records(filename) :
         if direction == SERVER_TO_CLIENT :
             client.update_state(ev)
         elif direction == CLIENT_TO_SERVER :
-            client.choose_action()
+            action = client.choose_action()
+            if action["type"] == "dahai":
+                player_id = client.mjaiLoader.game.player_id
+                print("id=",player_id)
+                player_state = client.mjaiLoader.game.player_states[player_id]
+                print("dump", player_state.dump())
+                print("action:", action)
         else :
             self.fail('Invalid mjai player record..')
 
