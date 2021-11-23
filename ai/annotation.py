@@ -1,33 +1,10 @@
 import os
-import pathlib
-import glob
 import subprocess
 import json
-import joblib
-
 import numpy as np
-
 from .mjtypes import *
-
 from mjlegal.mjai import MjaiLoader
 from mjlegal.possible_action import PossibleActionGenerator
-
-
-def read_log_json(file_path):
-    ret = []
-    try:
-        with open(file_path, encoding='utf-8') as f:
-            l = f.readlines()
-            for i in range(len(l)):
-                ret.append(json.loads(l[i]))
-    except UnicodeDecodeError as e:
-        print('read_log_json: UnicodeDecodeError exception')
-        with open(file_path, encoding='utf-8') as f:
-            l = f.readlines()
-            for i in range(len(l)):
-                ret.append(json.loads(l[i]))
-        
-    return ret
 
 def get_output_pathstr(input_logdir, file_name, output_npzdir, action_type):
     tmp_path = os.path.join(output_npzdir, action_type, file_name[len(input_logdir):].lstrip(os.sep))
@@ -62,14 +39,6 @@ class Data_Processor:
 
         self.x_reach = []
         self.y_reach = []
-
-    def get_legal_moves(self, current_record):
-        cmd = "./system.exe legal_action "
-        input_json = {}
-        input_json["record"] = current_record
-        cmd += json.dumps(input_json, separators=(',', ':'))
-        c = subprocess.check_output(cmd.split()).decode('utf-8').rstrip()
-        return json.loads(c)
 
     def process_record(self, game_record, legal_actions_all):
         game_state = get_game_state_start_kyoku(json.loads(INITIAL_START_KYOKU))
