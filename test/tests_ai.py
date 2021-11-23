@@ -1,11 +1,6 @@
 import unittest
 import json
 
-# from mjlegal.mjai import MjaiLoader
-from mjlegal.mjai_player_loader import MjaiPlayerLoader
-# from mjlegal.possible_action import PossibleActionGenerator
-from mjlegal.mjai_possible_action import MjaiPossibleActionGenerator
-
 from ai.client import *
 
 SERVER_TO_CLIENT = 0
