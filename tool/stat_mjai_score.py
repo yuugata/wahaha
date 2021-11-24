@@ -142,7 +142,6 @@ def get_result_from_mjson(log_file) :
                 if tenpais[i] :
                     result[name].count_tenpai_draw += 1
         elif action_type == "end_game" :
-            result[name].count_game += 1
             scores = action["scores"][:NUM_PLAYERS] # TODO fix mjai bug
 
             # Calculate ranking by Mahjong rule
@@ -153,6 +152,7 @@ def get_result_from_mjson(log_file) :
                 ranks[indices] = i
 
             for name, rank in zip(names, ranks) :
+                result[name].count_game += 1
                 result[name].count_ranks[rank] += 1
     return result
 
@@ -163,7 +163,7 @@ def print_player_result(name, player_result : PlayerResult) :
     format_str = """\
 name        : {name}
 ---------------------------------------
-局数        : {count_kyoku}局
+局数        : {count_game}局
 和了率      : {rate_hora:.2f}%
 自摸率      : {rate_tsumo:.2f}%
 平均得点    : {average_win_score:.2f}
@@ -179,7 +179,7 @@ name        : {name}
     """
     score_message = format_str.format(
         name = name,
-        count_kyoku = player_result.count_kyoku,
+        count_game = player_result.count_game,
         rate_hora   = player_result.rate_hora * 100,
         rate_tsumo  = player_result.rate_tsumo * 100,
         average_win_score = player_result.average_win_score,
