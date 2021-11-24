@@ -43,7 +43,6 @@ def test_mjai_player_records(filename) :
 
     client = Client()
     client.setup()
-    client.reset()
     
     for record in records :
         direction = record['direction']

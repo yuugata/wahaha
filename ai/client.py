@@ -22,6 +22,8 @@ class Client :
         self.models['dahai'] = DiscardNet(560, 128, 15)
         self.models['dahai'].load_state_dict(torch.load(self.model_paths['dahai']))
 
+        self.reset()
+
     def reset(self) :
         self.game_state = get_game_state_start_kyoku(json.loads(INITIAL_START_KYOKU))
         self.mjaiLoader = MjaiPlayerLoader()
@@ -78,12 +80,44 @@ class Client :
         x = torch.unsqueeze(x, 0)
         return nn.Softmax(dim=1)(model(x)).detach().numpy()[0]
 
+    def choose_action_rule_base(self, legal_actions) :
+        # 立直, 抜きドラ, 和了, 流局は必ず実施
+        reach_action = None
+        nukidora_action = None
+        hora_action = None
+        ryukyoku_action = None
+        action = None
+        for legal_action in legal_actions :
+            action_type = legal_action["type"]
+            if action_type == "hora" :
+                hora_action = legal_action
+            elif action_type == "reach" :
+                reach_action = legal_action
+            elif action_type == "nukidora" :
+                nukidora_action = legal_action
+            elif action_type == "ryukyoku" :
+                ryukyoku_action = "ryukyoku"
+
+        if hora_action is not None :
+            action = hora_action
+        elif reach_action is not None :
+            action = reach_action
+        elif ryukyoku_action is not None :
+            action = ryukyoku_action
+        elif nukidora_action is not None :
+            action = nukidora_action
+
+        return action
+
     def choose_action(self) :
         legal_actions = self.get_legal_actions()
         len_legal_actions = len(legal_actions)
         choosed_action = {"type" : "none"}
 
-        if len_legal_actions > 1 :
+        action_rule_base = self.choose_action_rule_base(legal_actions)
+        if action_rule_base is not None :
+            choosed_action = action_rule_base
+        elif len_legal_actions > 1 :
             if self.can_dahai(legal_actions) :
                 feature = self.get_feature(legal_actions)
                 prob_discard = self.forward_one(self.models['dahai'], feature["dahai"])

@@ -7,15 +7,12 @@
 
 import json
 import asyncio
-import random
-from mjlegal.mjai_player_loader import MjaiPlayerLoader
-from mjlegal.mjai_possible_action import MjaiPossibleActionGenerator
-
+from ai.client import Client
 
 class MjaiBot :
     def reset(self) : 
-        self.mjaiPlayerLoader = MjaiPlayerLoader()
-        self.mjaiPossibleActionGenerator = MjaiPossibleActionGenerator()
+        self.client = Client()
+        self.client.setup()
 
     async def open(self, server = "localhost", port = 11600) :
         self.server = server 
@@ -40,14 +37,9 @@ class MjaiBot :
             event = await self.receive()
             print("<- ", event)
 
-            # Notify an event from mjai server
-            self.mjaiPlayerLoader.action_receive(event)
-            
-            # Get possible moves
-            possible_actions = self.mjaiPossibleActionGenerator.possible_mjai_action(self.mjaiPlayerLoader.game, event)
-            
-            # Choice a random move
-            move = random.choice(possible_actions)
+            # ai client
+            self.client.update_state(event)
+            move = self.client.choose_action()
             print("-> ", move)
 
             # Send a move to mjai server
