@@ -113,10 +113,6 @@ def get_result_from_mjson(log_file) :
             names = action["names"]
             for name in names :
                 result[name] = PlayerResult()
-                result[name].count_game += 1
-        elif action_type == "start_kyoku" :
-            for name in names :
-                result[name].count_kyoku += 1
         elif action_type == "reach" :
             actor = action["actor"]
             result[names[actor]].count_reach += 1
@@ -136,6 +132,7 @@ def get_result_from_mjson(log_file) :
                 result[names[actor]].count_tsumo += 1
         elif action_type == "end_kyoku" :
             for name in names :
+                result[name].count_kyoku += 1
                 if result[name].count_furo > 0 :
                     result[name].count_furo_kyoku += 1
         elif action_type == "ryukyoku" :
@@ -145,6 +142,7 @@ def get_result_from_mjson(log_file) :
                 if tenpais[i] :
                     result[name].count_tenpai_draw += 1
         elif action_type == "end_game" :
+            result[name].count_game += 1
             scores = action["scores"][:NUM_PLAYERS] # TODO fix mjai bug
 
             # Calculate ranking by Mahjong rule
