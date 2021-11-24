@@ -163,7 +163,7 @@ def print_player_result(name, player_result : PlayerResult) :
     format_str = """\
 name        : {name}
 ---------------------------------------
-局数        : {count_game}局
+対戦数        : {count_game}回
 和了率      : {rate_hora:.2f}%
 自摸率      : {rate_tsumo:.2f}%
 平均得点    : {average_win_score:.2f}
