@@ -203,7 +203,8 @@ def main(args) :
     for log_file_name in log_file_list :
         log_file = open(log_file_name, 'r', encoding="utf-8")
         game_result = get_result_from_mjson(log_file)
-        results = merge_game_result(game_result, results)
+        if all(res.count_game > 0 for name, res in game_result.items()) :
+            results = merge_game_result(game_result, results)
         log_file.close()
     
     for name, res in results.items() :
