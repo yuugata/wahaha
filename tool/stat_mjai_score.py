@@ -116,7 +116,7 @@ def get_result_from_mjson(log_file) :
         elif action_type == "reach" :
             actor = action["actor"]
             result[names[actor]].count_reach += 1
-        elif action_type in ("pon", "chi") :
+        elif action_type in ("pon", "chi", "daiminkan") :
             actor = action["actor"]
             result[names[actor]].count_furo += 1
         elif action_type == "hora" :
